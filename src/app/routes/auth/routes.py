@@ -1,13 +1,14 @@
 import logging
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_user, logout_user, current_user
 from app.models.user import User, Role
 from app.crud.user import create_user, get_user_by_email, get_user_by_username, update_user, delete_user, add_user_session, remove_user_session, get_user_sessions
-from app.routes.auth.forms import RegistrationForm, LoginForm, UpdateUserForm
+from app.routes.auth.forms import RegistrationForm, LoginForm, UpdateUserForm, TwoFactorForm
 from app.extensions import db
 from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime
 from functools import wraps
+from app.decorators.auth_decorators import login_required, requires_roles, session_required
 
 auth = Blueprint('auth', __name__)
 
@@ -53,17 +54,48 @@ def login():
     if form.validate_on_submit():
         user = get_user_by_email(form.username.data) or get_user_by_username(form.username.data)
         if user and user.verify_password(form.password.data):
+            if user.two_factor_enabled:
+                session['user_id'] = user.id
+                return redirect(url_for('auth.two_factor'))
             login_user(user, remember=form.remember_me.data)
-            user.add_session(request.user_agent.string, request.remote_addr, datetime.utcnow(), datetime.utcnow())
+            user.add_session(request.user_agent.string, request.remote_addr, datetime.now(), datetime.now())
             return redirect(url_for('main.index'))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
+
+@auth.route('/two_factor', methods=['GET', 'POST'])
+@log_errors
+def two_factor():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+    
+    form = TwoFactorForm()
+    user = User.query.get(session['user_id'])
+    
+    if form.validate_on_submit():
+        if user.verify_totp(form.token.data):
+            login_user(user)
+            user.add_session(request.user_agent.string, request.remote_addr, datetime.now(), datetime.now())
+            session.pop('user_id', None)
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid 2FA token.')
+    
+    return render_template('auth/two_factor.html', form=form)
 
 @auth.route('/logout')
 @login_required
 @log_errors
 def logout():
-    current_user.remove_session(current_user.get_id())
+    current_device = request.user_agent.string
+    current_ip = request.remote_addr
+    sessions = get_user_sessions(current_user.id)
+    for session in sessions:
+        if session.device == current_device and session.ip_address == current_ip:
+            remove_user_session(current_user.id, session.id)
+            break
+   
+
     logout_user()
     return redirect(url_for('main.index'))
 
@@ -114,6 +146,7 @@ def verify_reset_token(token, expires_sec=1800):
 
 @auth.route('/manage_sessions')
 @login_required
+@session_required
 @log_errors
 def manage_sessions():
     sessions = get_user_sessions(current_user.id)
@@ -121,6 +154,7 @@ def manage_sessions():
 
 @auth.route('/remove_session/<int:session_id>')
 @login_required
+@session_required
 @log_errors
 def remove_session(session_id):
     if remove_user_session(current_user.id, session_id):
@@ -131,6 +165,7 @@ def remove_session(session_id):
 
 @auth.route('/logout_all_sessions')
 @login_required
+@session_required
 @log_errors
 def logout_all_sessions():
     sessions = get_user_sessions(current_user.id)

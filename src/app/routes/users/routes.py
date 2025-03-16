@@ -1,12 +1,13 @@
 from flask import Blueprint, request, render_template, flash, redirect, url_for, abort, current_app
 from flask_login import login_required, current_user
-from app.models.user import User, Role, requires_roles
+from app.models.user import User, Role
 from app.extensions import db
 from app.crud.user import get_user_by_id, get_user_by_email
 import uuid
 from datetime import datetime, timedelta
 from functools import wraps
 from app.utils.email import send_email
+from app.decorators.auth_decorators import login_required, requires_roles, session_required
 
 # Create blueprint
 users_bp = Blueprint('users', __name__, url_prefix='/users')
@@ -25,22 +26,6 @@ class Invitation(db.Model):
     
     role = db.relationship('Role')
     creator = db.relationship('User')
-
-# Helper function to require admin role
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('auth.login'))
-        
-        # # Check if user has admin or system_admin role
-        # admin_role = Role.query.filter_by(name='admin').first()
-        # system_admin_role = Role.query.filter_by(name='system_admin').first()
-        # if not admin_role or not system_admin_role or (admin_role not in current_user.roles and system_admin_role not in current_user.roles):
-        #     flash('You do not have permission to access this page.', 'error')
-        #     return redirect(url_for('main.index'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 # CRUD operations for invitations
 def create_invitation(email, role_id, created_by):
@@ -65,6 +50,7 @@ def get_invitation_by_token(token):
 @users_bp.route('/')
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def index():
     users = User.query.all()
     return render_template('users/index.html', users=users)
@@ -72,6 +58,7 @@ def index():
 @users_bp.route('/add', methods=['GET', 'POST'])
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def add():
     roles = Role.query.all()
     
@@ -119,6 +106,7 @@ def add():
 @users_bp.route('/invitations')
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def invitations():
     active_invitations = Invitation.query.filter_by(used=False).filter(Invitation.expires_at > datetime.now()).all()
     return render_template('users/invitations.html', invitations=active_invitations)
@@ -177,6 +165,7 @@ def register(token):
 @users_bp.route('/delete/<int:user_id>', methods=['POST'])
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def delete_user(user_id):
     user = get_user_by_id(user_id)
     
@@ -202,6 +191,7 @@ def delete_user(user_id):
 @users_bp.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def edit_user(user_id):
     user = get_user_by_id(user_id)
     roles = Role.query.all()
@@ -225,6 +215,7 @@ def edit_user(user_id):
 @users_bp.route('/manage_roles/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def manage_role(user_id):
     user = get_user_by_id(user_id)
     roles = Role.query.all()
@@ -248,6 +239,7 @@ def manage_role(user_id):
 @users_bp.route('/roles')
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def view_roles():
     roles = Role.query.all()
     return render_template('users/view_roles.html', roles=roles)
@@ -255,6 +247,7 @@ def view_roles():
 @users_bp.route('/roles/manage', methods=['GET', 'POST'])
 @login_required
 @requires_roles('admin', 'system_admin')
+@session_required
 def manage_roles():
     if request.method == 'POST':
         role_name = request.form.get('role_name')

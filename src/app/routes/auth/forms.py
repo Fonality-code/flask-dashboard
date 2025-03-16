@@ -51,3 +51,7 @@ class UpdateUserForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user is not None:
                 raise ValidationError('Please use a different email address.')
+
+class TwoFactorForm(FlaskForm):
+    token = StringField('2FA Token', validators=[DataRequired()])
+    submit = SubmitField('Verify')

@@ -7,29 +7,46 @@
     .container {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 0 20px;
     }
 
-    .form-header {
+    .section-header {
         margin-bottom: 30px;
         padding-bottom: 15px;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
     }
 
-    .form-title {
-        font-size: 24px;
-        font-weight: 600;
+    .section-title {
+        font-size: 28px;
+        font-weight: 700;
         color: var(--text-color);
+    }
+
+    .session-count {
+        color: var(--light-text);
+        font-size: 14px;
+        font-weight: 500;
+        background: var(--light-gray);
+        padding: 6px 12px;
+        border-radius: 12px;
     }
 
     .table-wrapper {
         background: var(--background-color);
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: var(--shadow-sm);
         overflow: hidden;
         border: 1px solid var(--border-color);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .table-wrapper:hover {
+        box-shadow: var(--shadow-md);
     }
 
     .table {
@@ -41,15 +58,18 @@
     .table thead {
         background: var(--light-gray);
         color: var(--text-color);
-        font-weight: 600;
     }
 
     .table th {
         padding: 15px 20px;
         text-align: left;
         font-size: 14px;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
     .table tbody tr {
@@ -71,28 +91,28 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 16px;
-        border-radius: 6px;
+        padding: 10px 20px;
+        border-radius: 8px;
         font-size: 14px;
         font-weight: 500;
         text-decoration: none;
         transition: var(--transition);
         cursor: pointer;
+        border: none;
     }
 
     .btn-danger {
         background: var(--error-color);
         color: white;
-        border: none;
     }
 
     .btn-danger:hover {
-        background: #DC2626; /* Darker red based on var(--error-color) */
-        color: white;
+        background: #DC2626;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
     }
 
     .btn-secondary {
-        background: var(--light-gray);
+        background: transparent;
         color: var(--text-color);
         border: 1px solid var(--border-color);
     }
@@ -107,27 +127,126 @@
         margin-top: 30px;
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
     }
 
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--light-text);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+
+    .empty-state p {
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    /* Mobile Styles */
     @media (max-width: 768px) {
-        .form-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
+        .container {
+            padding: 0 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
         }
 
         .table-wrapper {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .table th, .table td {
-            padding: 12px 15px;
+        .table {
+            display: block;
+        }
+
+        .table thead {
+            display: none;
+        }
+
+        .table tbody,
+        .table tr,
+        .table td {
+            display: block;
+            width: 100%;
+        }
+
+        .table tr {
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            background: var(--light-gray);
+        }
+
+        .table td {
+            padding: 10px;
+            border-bottom: none;
+            position: relative;
+        }
+
+        .table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--light-text);
+            display: block;
+            margin-bottom: 5px;
             font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            width: 100%;
+            justify-content: center;
         }
 
         .form-footer {
-            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .empty-state {
+            padding: 30px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .section-title {
+            font-size: 20px;
+        }
+
+        .session-count {
+            font-size: 13px;
+            padding: 4px 10px;
+        }
+
+        .table td::before {
+            font-size: 12px;
+        }
+
+        .table td {
+            font-size: 13px;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+        }
+
+        .empty-state p {
+            font-size: 14px;
         }
     }
 </style>
@@ -135,10 +254,10 @@
 
 {% block content %}
 <div class="container">
-    <div class="form-header">
-        <h2 class="form-title">Manage Sessions</h2>
+    <div class="section-header">
+        <h2 class="section-title">Manage Sessions</h2>
         <div class="actions">
-            <span class="session-count" style="color: var(--light-text); font-size: 14px;">
+            <span class="session-count">
                 Active Sessions: {{ sessions|length }}
             </span>
         </div>
@@ -159,23 +278,26 @@
                 {% if sessions %}
                     {% for session in sessions %}
                     <tr>
-                        <td>{{ session.device|truncate(30, True) }}</td>
-                        <td>{{ session.ip_address }}</td>
-                        <td>{{ session.login_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>{{ session.last_active.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>
-                            <a href="{{ url_for('account.remove_session', session_id=session.id) }}" 
-                               class="btn btn-danger" 
-                               onclick="return confirm('Are you sure you want to remove this session?');">
-                                <i class="fas fa-trash"></i> Remove
-                            </a>
+                        <td data-label="Device">{{ session.device|truncate(30, True) }}</td>
+                        <td data-label="IP Address">{{ session.ip_address }}</td>
+                        <td data-label="Login Time">{{ session.login_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td data-label="Last Active">{{ session.last_active.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td data-label="Action">
+                            <form action="{{ url_for('account.remove_session', session_id=session.id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this session?');">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--light-text); padding: 20px;">
-                            No active sessions found.
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fas fa-desktop"></i>
+                                <p>No active sessions found.</p>
+                            </div>
                         </td>
                     </tr>
                 {% endif %}

@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request, current_app, make_response
-from flask_login import login_required, current_user
+from flask_login import  current_user
 from app.models.settings import Settings
 from app.models.user import User, requires_roles  # Fixed import path
 from app.forms.settings_form import UISettingsForm, ThemeColorsForm
+from app.decorators.auth_decorators import login_required, requires_roles, session_required
 
 settings_bp = Blueprint('settings', __name__, url_prefix='/settings')
 
@@ -15,6 +16,7 @@ def index():
 
 @settings_bp.route('/ui', methods=['GET', 'POST'])
 @login_required
+@session_required
 @requires_roles('admin', 'system_admin')
 def ui_settings():
     """UI settings page"""
@@ -125,8 +127,8 @@ def get_ui_settings_api():
     try:
         ui_settings = Settings.get_ui_settings()
         
-        # Debug the settings before returning
-        current_app.logger.info(f"Returning UI settings: {ui_settings}")
+        # # Debug the settings before returning
+        # current_app.logger.info(f"Returning UI settings: {ui_settings}")
         
         # Set cache control headers to prevent caching
         response = make_response(jsonify(ui_settings))

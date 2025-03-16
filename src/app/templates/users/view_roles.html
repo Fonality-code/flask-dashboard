@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
     <div class="section-header">
-        <h1>Roles Management</h1>
+        <h1 class="section-title">Roles Management</h1>
         <div class="actions">
             <a href="{{ url_for('users.manage_roles') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Create New Role
@@ -15,97 +15,285 @@
 
     <div class="card">
         <div class="card-header">
-            <h2>Roles</h2>
+            <h2 class="card-title">Roles</h2>
         </div>
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for role in roles %}
-                    <tr>
-                        <td>{{ role.name }}</td>
-                        <td>{{ role.description }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if roles %}
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for role in roles %}
+                        <tr>
+                            <td data-label="Name">{{ role.name }}</td>
+                            <td data-label="Description">{{ role.description or 'No description provided' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users-cog fa-4x"></i>
+                <h3>No Roles Found</h3>
+                <p>Create a new role to get started with role management.</p>
+                <a href="{{ url_for('users.manage_roles') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Role
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+        flex-wrap: wrap;
+        gap: 15px;
     }
-    
+
+    .section-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
     .actions {
         display: flex;
-        gap: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
     }
-    
+
     .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
+        padding: 10px 20px;
+        border-radius: 8px;
         font-size: 14px;
         font-weight: 500;
         transition: var(--transition);
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
     }
-    
+
     .btn-primary {
         background-color: var(--primary-color);
         color: white;
-        border: none;
     }
-    
+
     .btn-primary:hover {
         background-color: var(--primary-hover);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
     }
-    
+
     .card {
         background-color: var(--background-color);
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--border-color);
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        transition: box-shadow 0.2s ease;
     }
-    
+
+    .card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
     .card-header {
-        padding: 15px 20px;
+        padding: 20px;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    
-    .card-body {
-        padding: 20px;
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
     }
-    
+
+    .card-body {
+        padding: 25px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .table {
         width: 100%;
         border-collapse: collapse;
+        margin-bottom: 0;
     }
-    
-    .table th, .table td {
-        padding: 12px 15px;
+
+    .table th,
+    .table td {
+        padding: 15px;
         text-align: left;
         border-bottom: 1px solid var(--border-color);
     }
-    
+
     .table th {
         font-weight: 600;
         color: var(--light-text);
+        background: var(--light-gray);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .table td {
+        color: var(--text-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--light-text);
+    }
+
+    .empty-state i {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 15px;
+        color: var(--text-color);
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        margin-bottom: 25px;
+        font-size: 16px;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+        }
+
+        .actions {
+            width: 100%;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 8px 16px;
+        }
+
+        .card-header {
+            padding: 15px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .table thead {
+            display: none;
+        }
+
+        .table tbody,
+        .table tr,
+        .table td {
+            display: block;
+            width: 100%;
+        }
+
+        .table tr {
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            background: var(--light-gray);
+        }
+
+        .table td {
+            padding: 8px 10px;
+            border-bottom: none;
+            position: relative;
+        }
+
+        .table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--light-text);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            padding: 40px 15px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .section-title {
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+        }
+
+        .table td::before {
+            font-size: 12px;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+        }
     }
 </style>
 {% endblock %}

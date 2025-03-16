@@ -2,14 +2,17 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.crud.user import update_user, get_user_sessions, remove_user_session
 from app.routes.account.forms import UpdateAccountForm, UpdateUserOptionsForm
+from app.routes.auth.forms import TwoFactorForm  # Corrected import
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
+from app.decorators.auth_decorators import login_required, session_required
 
 account = Blueprint('account', __name__)
 
 @account.route('/')
 @login_required
+@session_required
 def index():
     # Get the user's active sessions
     sessions = get_user_sessions(current_user.id)
@@ -23,7 +26,7 @@ def index():
     # Update the current_user with the active device info if not set
     if not current_user.active_device and current_device != "Unknown":
         current_user.active_device = current_device
-        current_user.last_login = datetime.utcnow()
+        current_user.last_login = datetime.now()
         from app.extensions import db
         db.session.commit()
     
@@ -31,6 +34,7 @@ def index():
 
 @account.route('/details', methods=['GET', 'POST'])
 @login_required
+@session_required
 def details():
     form = UpdateAccountForm(obj=current_user)
     options_form = UpdateUserOptionsForm(obj=current_user)
@@ -50,8 +54,9 @@ def details():
 
 @account.route('/security', methods=['GET', 'POST'])
 @login_required
+@session_required
 def security():
-    # If the user has two-factor auth enabled, we'll show QR code for setup
+    form = TwoFactorForm()
     if request.method == 'POST':
         if 'enable_2fa' in request.form:
             current_user.enable_two_factor()
@@ -59,6 +64,11 @@ def security():
         elif 'disable_2fa' in request.form:
             current_user.disable_two_factor()
             flash('Two-factor authentication has been disabled.', 'success')
+        elif form.validate_on_submit():
+            if current_user.verify_totp(form.token.data):
+                flash('Two-factor authentication confirmed.', 'success')
+            else:
+                flash('Invalid 2FA token.', 'error')
     
     # Generate QR code for 2FA setup if enabled
     qr_code = None
@@ -77,23 +87,41 @@ def security():
         img.save(buffered)
         qr_code = base64.b64encode(buffered.getvalue()).decode()
     
-    return render_template('account/security.html', qr_code=qr_code)
+    return render_template('account/security.html', form=form, qr_code=qr_code)
 
 @account.route('/enable-2fa', methods=['POST'])
 @login_required
+@session_required
 def enable_2fa():
     current_user.enable_two_factor()
     flash('Two-factor authentication has been enabled.')
     return redirect(url_for('account.details'))
 
+@account.route('/change_auth_type', methods=['POST'])
+@login_required
+@session_required
+def change_auth_type():
+    if request.method == 'POST':
+        otp_type = request.form.get('otp_type')
+        if otp_type in ['app', 'email', 'phone']:
+            current_user.otp_type = otp_type
+            from app.extensions import db
+            db.session.commit()
+            flash(f'Authentication method updated to {otp_type}.', 'success')
+        else:
+            flash('Invalid authentication type selected.', 'error')
+    return redirect(url_for('account.security'))
+
 @account.route('/sessions')
 @login_required
+@session_required
 def sessions():
     sessions = get_user_sessions(current_user.id)
-    return render_template('account/sessions.html', sessions=sessions)
+    return redirect(url_for('auth.manage_sessions'))
 
 @account.route('/sessions/remove/<int:session_id>', methods=['POST'])
 @login_required
+@session_required
 def remove_session(session_id):
     if remove_user_session(current_user.id, session_id):
         flash('Session has been revoked successfully.', 'success')
