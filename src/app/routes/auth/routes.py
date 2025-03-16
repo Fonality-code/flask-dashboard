@@ -1,7 +1,7 @@
 import logging
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models.user import User
+from app.models.user import User, Role
 from app.crud.user import create_user, get_user_by_email, get_user_by_username, update_user, delete_user, add_user_session, remove_user_session, get_user_sessions
 from app.routes.auth.forms import RegistrationForm, LoginForm, UpdateUserForm
 from app.extensions import db
@@ -30,8 +30,16 @@ def log_errors(f):
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Check if this will be the first user
+        is_first_user = User.query.count() == 0
+        
         user = create_user(form.username.data, form.email.data, form.password.data, form.phone_number.data, form.otp_type.data)
-        flash('Congratulations, you are now a registered user!')
+        
+        if is_first_user:
+            flash('Congratulations! You are registered as the System Administrator.')
+        else:
+            flash('Congratulations, you are now a registered user!')
+            
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 

@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 from app.extensions import db
+from datetime import datetime
 
 
 # Association table for many-to-many relationship between users and roles
@@ -24,12 +25,12 @@ class UserSession(db.Model):
     __tablename__ = 'user_session'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
-    device = db.Column(db.String(128), nullable=False)
-    ip_address = db.Column(db.String(45), nullable=False)
-    login_time = db.Column(db.DateTime, nullable=False)
-    last_active = db.Column(db.DateTime, nullable=False)
+    device = db.Column(db.String(200), nullable=False)
+    ip_address = db.Column(db.String(100), nullable=False)
+    login_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    last_active = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-    user = db.relationship('User', backref=db.backref('sessions', lazy='dynamic'))
+    user = db.relationship('User', back_populates='sessions')
 
     def __repr__(self):
         return f'<UserSession {self.device} - {self.ip_address}>'
@@ -37,11 +38,11 @@ class UserSession(db.Model):
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)
-    first_name = db.Column(db.String(64), nullable=True)
-    last_name = db.Column(db.String(64), nullable=True)
-    profile_image = db.Column(db.String(128), nullable=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    first_name = db.Column(db.String(150), nullable=True)
+    last_name = db.Column(db.String(150), nullable=True)
+    profile_image = db.Column(db.String(200), nullable=True)
+    email = db.Column(db.String(150), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), unique=True, nullable=True)
     otp_type = db.Column(db.String(10), nullable=True)  # 'email', 'phone', 'app'
     password_hash = db.Column(db.String(128), nullable=False)
@@ -55,6 +56,7 @@ class User(db.Model, UserMixin):
     totp_secret = db.Column(db.String(16), nullable=True)
     two_factor_enabled = db.Column(db.Boolean, default=False)
     last_login = db.Column(db.DateTime, nullable=True)
+    active_device = db.Column(db.String(200), nullable=True)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -113,6 +115,8 @@ class User(db.Model, UserMixin):
 
     def get_active_sessions(self):
         return UserSession.query.filter_by(user_id=self.id).all()
+
+User.sessions = db.relationship('UserSession', order_by=UserSession.login_time, back_populates='user')
 
     # Security recommendations:
     # 1. Ensure passwords are hashed using a strong algorithm (e.g., bcrypt).

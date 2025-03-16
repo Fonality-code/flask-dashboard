@@ -87,7 +87,7 @@
     }
 
     .btn-danger:hover {
-        background: #DC2626; /* Darker red */
+        background: #DC2626; /* Darker red based on var(--error-color) */
         color: white;
     }
 
@@ -164,7 +164,7 @@
                         <td>{{ session.login_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>{{ session.last_active.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>
-                            <a href="{{ url_for('auth.remove_session', session_id=session.id) }}" 
+                            <a href="{{ url_for('account.remove_session', session_id=session.id) }}" 
                                class="btn btn-danger" 
                                onclick="return confirm('Are you sure you want to remove this session?');">
                                 <i class="fas fa-trash"></i> Remove
@@ -189,8 +189,8 @@
            onclick="return confirm('This will log you out of all sessions. Continue?');">
            <i class="fas fa-sign-out-alt"></i> Logout All
         </a>
-        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Home
+        <a href="{{ url_for('account.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Account
         </a>
     </div>
 </div>

@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Account Security{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .section-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-title {
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .security-card {
+        background: var(--background-color);
+        border-radius: 10px;
+        box-shadow: var(--shadow-sm);
+        padding: 30px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border-color);
+        transition: box-shadow 0.2s ease;
+        position: relative;
+    }
+
+    .security-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-description {
+        color: var(--light-text);
+        margin-bottom: 20px;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        gap: 6px;
+    }
+
+    .status-enabled {
+        background: rgba(16, 185, 129, 0.15); /* Using --secondary-color with transparency */
+        color: var(--secondary-color);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-disabled {
+        background: rgba(239, 68, 68, 0.15); /* Using --error-color with transparency */
+        color: var(--error-color);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        margin-right: 15px;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-danger {
+        background: var(--error-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background: #DC2626; /* Darker version of --error-color */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+        background: var(--light-gray);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .qr-container {
+        margin-top: 25px;
+        text-align: center;
+        padding: 20px;
+        background: var(--light-gray);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .qr-container h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+
+    .qr-code {
+        
+        border: 1px solid var(--border-color);
+        padding: 10px;
+        background: white;
+        border-radius: 4px;
+    }
+
+    .setup-steps {
+        margin-top: 20px;
+        padding: 15px;
+        background: var(--light-gray);
+        border-radius: 8px;
+        font-size: 14px;
+        color: var(--text-color);
+    }
+
+    .setup-steps ol {
+        margin-bottom: 0;
+        padding-left: 25px;
+    }
+
+    .setup-steps li {
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .setup-steps li:last-child {
+        margin-bottom: 0;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 15px;
+        }
+
+        .section-title {
+            font-size: 22px;
+        }
+
+        .security-card {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+        }
+
+        .card-description {
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .qr-container {
+            padding: 15px;
+        }
+
+        .qr-code {
+            max-width: 150px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1 class="section-title">Account Security</h1>
+        <a href="{{ url_for('account.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Account
+        </a>
+    </div>
+
+    <div class="security-card">
+        <h2 class="card-title">
+            <i class="fas fa-shield-alt"></i> Two-Factor Authentication (2FA)
+        </h2>
+        <p class="card-description">
+            Enhance your account security by requiring a verification code alongside your password during login.
+        </p>
+        
+        <div class="status-indicator {% if current_user.two_factor_enabled %}status-enabled{% else %}status-disabled{% endif %}">
+            <i class="fas {% if current_user.two_factor_enabled %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            {{ 'Enabled' if current_user.two_factor_enabled else 'Disabled' }}
+        </div>
+
+        <div class="card-actions">
+            {% if current_user.two_factor_enabled %}
+                <form method="POST">
+                    {{ form.hidden_tag() if form else '' }}
+                    <input type="hidden" name="disable_2fa" value="1">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to disable 2FA?');">
+                        <i class="fas fa-shield-alt"></i> Disable 2FA
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST">
+                    {{ form.hidden_tag() if form else '' }}
+                    <input type="hidden" name="enable_2fa" value="1">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-shield-alt"></i> Enable 2FA
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        {% if qr_code %}
+            <div class="qr-container">
+                <h3>Setup Your Authenticator</h3>
+                <div class="setup-steps">
+                    <ol>
+                        <li>Install an authenticator app (e.g., Google Authenticator, Authy) on your device.</li>
+                        <li>Scan the QR code below using the app.</li>
+                        <li>Enter the 6-digit code generated by the app when prompted during login.</li>
+                    </ol>
+                </div>
+                <div class="qr-code">
+                    <img src="data:image/png;base64,{{ qr_code }}" alt="2FA QR Code">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="security-card">
+        <h2 class="card-title">
+            <i class="fas fa-key"></i> Password Management
+        </h2>
+        <p class="card-description">
+            Keep your account secure with a strong, unique password (12+ characters, mix of letters, numbers, and symbols).
+        </p>
+        <div class="card-actions">
+            <a href="{{ url_for('auth.reset_password_request') }}" class="btn btn-primary">
+                <i class="fas fa-key"></i> Change Password
+            </a>
+        </div>
+    </div>
+
+    <div class="security-card">
+        <h2 class="card-title">
+            <i class="fas fa-desktop"></i> Active Sessions
+        </h2>
+        <p class="card-description">
+            Monitor and control devices logged into your account. Logout unrecognized sessions immediately.
+        </p>
+        <div class="card-actions">
+            <a href="{{ url_for('auth.manage_sessions') }}" class="btn btn-primary">
+                <i class="fas fa-desktop"></i> Manage Sessions
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

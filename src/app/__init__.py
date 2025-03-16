@@ -23,4 +23,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    return app  # Register the users blueprint
+    
     return app

@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Account Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+
+    .account-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .account-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .user-info {
+        font-size: 14px;
+        color: var(--light-text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .account-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .account-card {
+        background: var(--background-color);
+        border-radius: 10px;
+        box-shadow: var(--shadow-sm);
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .account-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2; /* Ensure icon stays above background effect */
+    }
+
+    .card-icon i {
+        color: white;
+        font-size: 20px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .card-content {
+        margin-bottom: 20px;
+        color: var(--light-text);
+        font-size: 14px;
+        position: relative;
+        z-index: 2; /* Ensure content stays above background effect */
+    }
+
+    .card-content p {
+        margin-bottom: 10px;
+    }
+
+    .card-content ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .card-content ul li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-content ul li:before {
+        content: "\f105"; /* Font Awesome angle-right */
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: var(--primary-color);
+        font-size: 12px;
+    }
+
+    .card-action {
+        text-align: right;
+        position: relative;
+        z-index: 2; /* Ensure button stays above background effect */
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn:hover {
+        background: var(--primary-hover);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Subtle background effect */
+    .account-card:before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1; /* Lower z-index to stay below content */
+        pointer-events: none; /* Prevents interference with clicks */
+    }
+
+    .account-card:hover:before {
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        .account-container {
+            padding: 20px;
+        }
+
+        .account-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .account-title {
+            font-size: 24px;
+        }
+
+        .account-cards {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .card-title {
+            font-size: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="account-container">
+    <div class="account-header">
+        <h1 class="account-title">Welcome, {{ current_user.username }}</h1>
+        <div class="user-info">
+            <i class="fas fa-clock"></i>
+            Last login: 
+            {% if current_user.last_login %}
+                {{ current_user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}
+            {% else %}
+                Never
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="account-cards">
+        <div class="account-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 class="card-title">Profile Details</h2>
+            </div>
+            <div class="card-content">
+                <p>Manage your personal information, email, and phone number.</p>
+                <ul>
+                    <li>Email: {{ current_user.email }}</li>
+                    <li>Phone: {{ current_user.phone_number or 'Not set' }}</li>
+                </ul>
+            </div>
+            <div class="card-action">
+                <a href="{{ url_for('account.details') }}" class="btn">
+                    <i class="fas fa-edit"></i> Manage
+                </a>
+            </div>
+        </div>
+
+        <div class="account-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 class="card-title">Security</h2>
+            </div>
+            <div class="card-content">
+                <p>Manage your password and two-factor authentication.</p>
+                <ul>
+                    <li>2FA Status: 
+                        <span style="color: {{ 'var(--secondary-color)' if current_user.two_factor_enabled else 'var(--error-color)' }};">
+                            {{ 'Enabled' if current_user.two_factor_enabled else 'Disabled' }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-action">
+                <a href="{{ url_for('account.security') }}" class="btn">
+                    <i class="fas fa-lock"></i> Manage
+                </a>
+            </div>
+        </div>
+
+        <div class="account-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <h2 class="card-title">Active Sessions</h2>
+            </div>
+            <div class="card-content">
+                <p>View and manage your active login sessions.</p>
+                <ul>
+                    {% if active_sessions %}
+                        <li>Active sessions: {{ active_sessions|length }}</li>
+                        <li>Current device: 
+                            {% if current_user.active_device %}
+                                {{ current_user.active_device }}
+                            {% else %}
+                                {% if active_sessions %}
+                                    {{ active_sessions[0].device }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            {% endif %}
+                        </li>
+                        {% if active_sessions %}
+                            <li>Last active: {{ active_sessions[0].last_active.strftime('%Y-%m-%d %H:%M:%S') }}</li>
+                        {% endif %}
+                    {% else %}
+                        <li>No active sessions found</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="card-action">
+                <a href="{{ url_for('auth.manage_sessions') }}" class="btn">
+                    <i class="fas fa-history"></i> Manage
+                </a>
+            </div>
+        </div>
+
+        {% if current_user.roles %}
+        <div class="account-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <h2 class="card-title">User Roles</h2>
+            </div>
+            <div class="card-content">
+                <p>Your assigned roles:</p>
+                <ul>
+                    {% for role in current_user.roles %}
+                    <li>{{ role.name }}{% if role.description %} - {{ role.description }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-action">
+                <a href="{{ url_for('account.details') }}" class="btn">
+                    <i class="fas fa-info-circle"></i> Details
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

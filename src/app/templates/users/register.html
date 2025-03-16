@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Registration{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Complete Your Registration</h2>
+        </div>
+        <div class="card-body">
+            <div class="invitation-info">
+                <p>You have been invited to join as a <strong>{{ invitation.role.name }}</strong>.</p>
+                <p>Email: <strong>{{ invitation.email }}</strong></p>
+            </div>
+            
+            <form method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <button type="button" class="toggle-password" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="password-strength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="password-input">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                        <button type="button" class="toggle-password" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-check"></i> Complete Registration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .card {
+        background-color: var(--background-color);
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--light-gray);
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .card-body {
+        padding: 30px;
+    }
+    
+    .invitation-info {
+        background-color: var(--light-gray);
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .invitation-info p {
+        margin: 5px 0;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background-color: var(--light-gray);
+        color: var(--text-color);
+        transition: var(--transition);
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .password-input {
+        position: relative;
+    }
+    
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--light-text);
+        cursor: pointer;
+    }
+    
+    .password-strength {
+        height: 5px;
+        margin-top: 8px;
+        border-radius: 3px;
+        transition: var(--transition);
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        transition: var(--transition);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    // Toggle password visibility
+    $('.toggle-password').on('click', function() {
+        const passwordInput = $(this).siblings('input');
+        const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+        passwordInput.attr('type', type);
+        
+        // Change icon
+        const icon = $(this).find('i');
+        icon.toggleClass('fa-eye fa-eye-slash');
+    });
+    
+    // Password strength indicator
+    $('#password').on('input', function() {
+        const password = $(this).val();
+        const strength = checkPasswordStrength(password);
+        
+        const strengthBar = $('#password-strength');
+        
+        if (password.length === 0) {
+            strengthBar.css('width', '0%');
+            strengthBar.css('background-color', 'transparent');
+        } else {
+            strengthBar.css('width', '100%');
+            
+            if (strength < 3) {
+                strengthBar.css('background-color', 'var(--error-color)');
+            } else if (strength < 6) {
+                strengthBar.css('background-color', 'var(--warning-color)');
+            } else {
+                strengthBar.css('background-color', 'var(--secondary-color)');
+            }
+        }
+    });
+    
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        
+        if (password.length >= 8) strength += 2;
+        if (password.match(/[a-z]+/)) strength += 1;
+        if (password.match(/[A-Z]+/)) strength += 1;
+        if (password.match(/[0-9]+/)) strength += 1;
+        if (password.match(/[^a-zA-Z0-9]+/)) strength += 1;
+        
+        return strength;
+    }
+});
+</script>
+{% endblock %}
