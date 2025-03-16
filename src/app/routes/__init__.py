@@ -12,4 +12,4 @@ def registerBlueprints(app: Flask):
     app.register_blueprint(account, url_prefix='/account')
     app.register_blueprint(users_bp)
     app.register_blueprint(settings_bp)
-    app.register_blueprint(admin, url_prefix='/admin')
+    app.register_blueprint(admin)

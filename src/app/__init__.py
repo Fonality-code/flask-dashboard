@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-from flask import Flask
+from flask import Flask, render_template
 from app.extensions import db, login_manager, oauth
 from app.routes import registerBlueprints
 from app.models.user import User
@@ -57,5 +57,14 @@ def create_app(config_name='default'):
 
     with app.app_context():
         db.create_all()
+
+    # Error handlers
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(401)
+    def unauthorized(e):
+        return render_template('unauthorized.html'), 401
 
     return app

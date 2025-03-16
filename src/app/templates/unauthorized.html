@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Unauthorized Access{% endblock %}
+
+{% block content %}
+<div class="unauthorized-container">
+    <div class="unauthorized-content">
+        <div class="illustration">
+            <!-- Simple SVG lock illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M90 50H30C25.5817 50 22 53.5817 22 58V98C22 102.418 25.5817 106 30 106H90C94.4183 106 98 102.418 98 98V58C98 53.5817 94.4183 50 90 50Z" fill="var(--primary-color)" opacity="0.2"/>
+                <path d="M60 86C66.6274 86 72 80.6274 72 74C72 67.3726 66.6274 62 60 62C53.3726 62 48 67.3726 48 74C48 80.6274 53.3726 86 60 86Z" fill="var(--primary-color)" opacity="0.4"/>
+                <path d="M80 50V38C80 23.8647 69.1353 12 55 12C40.8647 12 30 23.8647 30 38V50H80Z" fill="var(--primary-color)" opacity="0.6"/>
+                <path d="M60 74V82" stroke="var(--primary-color)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1 class="unauthorized-title">Access Denied</h1>
+        <p class="unauthorized-message">Sorry, you don't have permission to view this page or resource.</p>
+        <p class="unauthorized-help">If you believe this is an error, please contact your system administrator or return to the previous page.</p>
+        <div class="actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Return Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .unauthorized-container {
+        min-height: calc(100vh - 100px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: var(--background-color);
+    }
+
+    .unauthorized-content {
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        padding: 40px;
+        background: var(--background-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .illustration {
+        margin-bottom: 30px;
+    }
+
+    .unauthorized-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+
+    .unauthorized-message {
+        font-size: 18px;
+        color: var(--light-text);
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .unauthorized-help {
+        font-size: 14px;
+        color: var(--light-text);
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        .unauthorized-content {
+            padding: 30px;
+        }
+
+        .unauthorized-title {
+            font-size: 28px;
+        }
+
+        .unauthorized-message {
+            font-size: 16px;
+        }
+
+        .unauthorized-help {
+            font-size: 13px;
+        }
+
+        .illustration svg {
+            width: 100px;
+            height: 100px;
+        }
+
+        .actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 10px 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .unauthorized-content {
+            padding: 20px;
+        }
+
+        .unauthorized-title {
+            font-size: 24px;
+        }
+
+        .unauthorized-message {
+            font-size: 14px;
+        }
+
+        .unauthorized-help {
+            font-size: 12px;
+        }
+
+        .illustration svg {
+            width: 80px;
+            height: 80px;
+        }
+    }
+</style>
+{% endblock %}

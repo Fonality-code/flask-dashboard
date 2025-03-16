@@ -5,7 +5,7 @@ from app.decorators.auth_decorators import requires_roles
 
 admin = Blueprint('admin', __name__)
 
-@admin.route('/')
+@admin.route('/dashboard/')
 @login_required
 @requires_roles('system_admin')
 def index():

@@ -81,7 +81,7 @@ def google_register_callback():
     db.session.commit()
 
     login_user(user)
-    return redirect(url_for('main.index'))
+    return redirect(url_for('admin.index'))
 
 @auth.route('/login', methods=['GET', 'POST'])
 @log_errors
@@ -107,7 +107,7 @@ def login():
                 login_user(user, remember=form.remember_me.data)
                 user.add_session(request.user_agent.string, request.remote_addr, datetime.now(), datetime.now())
                 logging.info(f"User {user.username} logged in successfully.")
-                return redirect(url_for('main.index'))
+                return redirect(url_for('admin.index'))
             else:
                 user.increment_failed_logins()
                 logging.warning(f"Failed login attempt for user {user.username}.")
@@ -156,7 +156,7 @@ def google_callback():
     # add session
     user.add_session(request.user_agent.string, request.remote_addr, datetime.now(), datetime.now())
     
-    return redirect(url_for('main.index'))
+    return redirect(url_for('admin.index'))
 
 @auth.route('/account/link_google')
 @login_required
@@ -197,7 +197,7 @@ def two_factor():
             login_user(user)
             user.add_session(request.user_agent.string, request.remote_addr, datetime.now(), datetime.now())
             session.pop('user_id', None)
-            return redirect(url_for('main.index'))
+            return redirect(url_for('admin.index'))
         else:
             flash('Invalid 2FA token.')
     
@@ -217,13 +217,13 @@ def logout():
    
 
     logout_user()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('admin.index'))
 
 @auth.route('/reset_password_request', methods=['GET', 'POST'])
 @log_errors
 def reset_password_request():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('admin.index'))
     if request.method == 'POST':
         email = request.form['email']
         user = get_user_by_email(email)
@@ -239,10 +239,10 @@ def reset_password_request():
 @log_errors
 def reset_password(token):
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('admin.index'))
     user = verify_reset_token(token)
     if not user:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('admin.index'))
     if request.method == 'POST':
         password = request.form['password']
         user.password = password
