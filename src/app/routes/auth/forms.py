@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length, Regexp
 from app.models.user import User
 
 class RegistrationForm(FlaskForm):
@@ -8,7 +8,11 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone_number = StringField('Phone Number', validators=[Optional()])
     otp_type = SelectField('OTP Type', choices=[('email', 'Email'), ('phone', 'Phone'), ('app', 'App')], validators=[Optional()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[
+        DataRequired(),
+        Length(min=8, message='Password must be at least 8 characters long.'),
+        Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', message='Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.')
+    ])
     confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 

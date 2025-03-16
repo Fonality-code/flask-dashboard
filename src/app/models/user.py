@@ -1,12 +1,15 @@
+import logging
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from flask import abort, flash, redirect, url_for
 from app.decorators.auth_decorators import login_required, requires_roles, session_required
+from app.utils.email import send_email
+from app.utils.sms import send_sms
 
 
 # Association table for many-to-many relationship between users and roles
@@ -60,6 +63,13 @@ class User(db.Model, UserMixin):
     two_factor_enabled = db.Column(db.Boolean, default=False)
     last_login = db.Column(db.DateTime, nullable=True)
     active_device = db.Column(db.String(200), nullable=True)
+    email_otp = db.Column(db.String(6), nullable=True)
+    email_otp_expiry = db.Column(db.DateTime, nullable=True)
+    phone_otp = db.Column(db.String(6), nullable=True)
+    phone_otp_expiry = db.Column(db.DateTime, nullable=True)
+    google_id = db.Column(db.String(128), unique=True, nullable=True)
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    lockout_time = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -118,6 +128,74 @@ class User(db.Model, UserMixin):
 
     def get_active_sessions(self):
         return UserSession.query.filter_by(user_id=self.id).all()
+
+    def generate_email_otp(self):
+        import secrets
+        self.email_otp = secrets.token_hex(3)  # Generate a 6-character OTP
+        self.email_otp_expiry = datetime.now() + timedelta(minutes=10)  # OTP valid for 10 minutes
+        db.session.commit()
+        # Send the OTP to the user's email
+        send_email(self.email, 'Your OTP Code', f'Your OTP code is {self.email_otp}')
+
+    def verify_email_otp(self, token):
+        if self.email_otp and self.email_otp_expiry > datetime.now():
+            return self.email_otp == token
+        return False
+
+    def generate_phone_otp(self):
+        import secrets
+        self.phone_otp = secrets.token_hex(3)  # Generate a 6-character OTP
+        self.phone_otp_expiry = datetime.now() + timedelta(minutes=10)  # OTP valid for 10 minutes
+        db.session.commit()
+        # Send the OTP to the user's phone
+        send_sms(self.phone_number, f'Your OTP code is {self.phone_otp}')
+
+    def verify_phone_otp(self, token):
+        if self.phone_otp and self.phone_otp_expiry > datetime.now():
+            return self.phone_otp == token
+        return False
+
+    def verify_otp(self, token):
+        if self.otp_type == 'email':
+            return self.verify_email_otp(token)
+        elif self.otp_type == 'phone':
+            return self.verify_phone_otp(token)
+        elif self.otp_type == 'app':
+            return self.verify_totp(token)
+        return False
+
+    def link_google_account(self, google_id):
+        self.google_id = google_id
+        db.session.commit()
+
+    def is_google_account_linked(self):
+        return self.google_id is not None
+
+    def increment_failed_logins(self):
+        self.failed_login_attempts += 1
+        if self.failed_login_attempts >= 5:
+            self.lockout_time = datetime.now() + timedelta(minutes=15)  # Lockout for 15 minutes
+            self.send_suspicious_activity_email()
+            logging.warning(f"User {self.username} account locked due to multiple failed login attempts.")
+        db.session.commit()
+
+    def reset_failed_logins(self):
+        self.failed_login_attempts = 0
+        self.lockout_time = None
+        db.session.commit()
+
+    def is_account_locked(self):
+        if self.lockout_time and self.lockout_time > datetime.now():
+            return True
+        return False
+
+    def send_suspicious_activity_email(self):
+        send_email(
+            self.email,
+            'Suspicious Activity Detected',
+            'We have detected multiple failed login attempts on your account. Your account has been locked for 15 minutes for security reasons.'
+        )
+        logging.info(f"Suspicious activity email sent to {self.email}.")
 
 User.sessions = db.relationship('UserSession', order_by=UserSession.login_time, back_populates='user')
 

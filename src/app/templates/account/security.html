@@ -514,7 +514,7 @@
             {% endif %}
         </div>
 
-        {% if qr_code %}
+        {% if current_user.otp_type == 'app' and qr_code %}
             <div class="qr-container">
                 <h3>Setup Your Authenticator</h3>
                 <div class="qr-code-wrapper">
@@ -566,6 +566,24 @@
             <a href="{{ url_for('auth.manage_sessions') }}" class="btn btn-primary">
                 <i class="fas fa-desktop"></i> Manage Sessions
             </a>
+        </div>
+    </div>
+
+    <div class="security-card">
+        <h2 class="card-title">
+            <i class="fas fa-link"></i> Linked Accounts
+        </h2>
+        <p class="card-description">
+            Link your social accounts for easier login.
+        </p>
+        <div class="card-actions">
+            {% if current_user.google_id %}
+                <p>Google account linked.</p>
+            {% else %}
+                <a href="{{ url_for('auth.link_google') }}" class="btn btn-primary">
+                    <i class="fab fa-google"></i> Link Google Account
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -322,6 +322,26 @@
             </div>
         </div>
         {% endif %}
+
+        <div class="account-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h2 class="card-title">Linked Accounts</h2>
+            </div>
+            <div class="card-content">
+                <p>Link your social accounts for easier login.</p>
+                <ul>
+                    <li>Google: {{ 'Linked' if current_user.google_id else 'Not linked' }}</li>
+                </ul>
+            </div>
+            <div class="card-action">
+                <a href="{{ url_for('account.security') }}" class="btn">
+                    <i class="fas fa-link"></i> Manage
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

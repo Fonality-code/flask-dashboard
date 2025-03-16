@@ -45,6 +45,15 @@
         </div>
     </form>
     
+    <div class="social-login">
+        <div class="social-login-divider">
+            <span>or</span>
+        </div>
+        <a href="{{ url_for('auth.google_login') }}" class="btn btn-google">
+            <i class="fab fa-google"></i> Continue with Google
+        </a>
+    </div>
+    
     <div class="auth-form-footer">
         Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
     </div>
@@ -71,6 +80,60 @@
         justify-content: space-between;
     }
 
+    .social-login {
+        margin: 24px 0;
+    }
+
+    .social-login-divider {
+        position: relative;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .social-login-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: var(--border-color);
+    }
+
+    .social-login-divider span {
+        position: relative;
+        display: inline-block;
+        padding: 0 12px;
+        background-color: var(--background-color);
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+
+    .btn-google {
+        background-color: #fff;
+        color: #444;
+        border: 1px solid #ddd;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .btn-google:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .btn-google i {
+        color: #4285F4;
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
     @media (max-width: 767px) {
         /* Mobile-specific styles for login */
         .form-check {
@@ -85,6 +148,10 @@
         
         .form-label-link:hover {
             background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-google {
+            padding: 12px 0;
         }
     }
     
