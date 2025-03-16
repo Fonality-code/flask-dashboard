@@ -22,6 +22,8 @@ def log_errors(f):
         except Exception as e:
             logging.error(f"Error in {f.__name__}: {e}")
             flash('An error occurred. Please try again later.')
+            # Return a redirect to a safe page when an exception occurs
+            return redirect(url_for('main.index'))
             
     return decorated_function
 
@@ -29,6 +31,7 @@ def log_errors(f):
 @log_errors
 def register():
     form = RegistrationForm()
+    
     if form.validate_on_submit():
         # Check if this will be the first user
         is_first_user = User.query.count() == 0

@@ -1,0 +1,753 @@
+{% extends "base.html" %}
+
+{% block title %}UI Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ui-settings-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+
+    .section-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .section-description {
+        font-size: 15px;
+        color: var(--light-text);
+        margin-top: 5px;
+    }
+
+    .theme-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .theme-card {
+        flex: 1;
+        min-width: 320px;
+        background: var(--background-color);
+        border-radius: 10px;
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .theme-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .theme-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .theme-title h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .color-groups {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 20px;
+    }
+
+    .color-field {
+        margin-bottom: 15px;
+    }
+
+    .color-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: var(--text-color);
+    }
+
+    .color-input-group {
+        display: flex;
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .color-picker {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        background: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+    }
+
+    .color-picker::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    .color-picker::-webkit-color-swatch {
+        border: none;
+    }
+
+    .color-text {
+        flex-grow: 1;
+        height: 40px;
+        padding: 0 12px;
+        font-family: monospace;
+        font-size: 14px;
+        border: none;
+        background: var(--light-gray);
+        color: var(--text-color);
+        transition: border-color 0.2s ease;
+    }
+
+    .color-text:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        border: none;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+        background: var(--light-gray);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .btn-danger {
+        background: var(--error-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #DC2626; /* Darker red */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-preview {
+        width: 100%;
+        height: 140px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        border: 1px solid;
+        overflow: hidden;
+        flex-direction: column;
+        gap: 15px;
+        position: relative;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .preview-elements {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .preview-btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: transform 0.2s ease;
+    }
+
+    .preview-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .preview-color-palette {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 10px;
+    }
+
+    .color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .color-swatch:hover {
+        transform: scale(1.15);
+    }
+
+    .color-tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 1000;
+        white-space: nowrap;
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-size: 12px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .ui-settings-container {
+            padding: 20px 15px;
+        }
+
+        .section-title {
+            font-size: 22px;
+        }
+
+        .theme-container {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .theme-card {
+            min-width: 100%;
+        }
+
+        .color-groups {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+
+        .theme-preview {
+            height: 120px;
+        }
+    }
+
+    .settings-section {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-heading {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+
+    .logo-preview {
+        width: 100px;
+        height: 100px;
+        margin: 15px 0;
+        object-fit: contain;
+        background-color: var(--light-gray);
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+    }
+
+    .logo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .form-row {
+        margin-bottom: 20px;
+    }
+
+    .form-row label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .form-row input[type="text"], 
+    .form-row input[type="url"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ui-settings-container" id="ui-settings-app">
+    <div class="section-header">
+        <div>
+            <h1 class="section-title">UI Settings</h1>
+            <p class="section-description">Personalize your dashboard's look with custom light and dark theme colors.</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('settings.ui_settings') }}">
+        {{ form.hidden_tag() }}
+
+        <!-- General Settings Section -->
+        <div class="settings-section">
+            <h2 class="section-heading">General Appearance</h2>
+            
+            <div class="form-row">
+                {{ form.general.app_name.label }}
+                {{ form.general.app_name(class="form-control") }}
+                {% if form.general.app_name.errors %}
+                    <div class="error-message">
+                        {% for error in form.general.app_name.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                {{ form.general.app_logo_url.label }}
+                {{ form.general.app_logo_url(class="form-control", placeholder="https://example.com/logo.png") }}
+                <small style="color: var(--light-text); display: block; margin-top: 5px;">Leave blank to use the default logo.</small>
+                
+                <div class="logo-preview" id="logo-preview">
+                    <img id="logo-preview-img" src="{{ form.general.app_logo_url.data or '#' }}" alt="Logo preview" style="display: {{ 'block' if form.general.app_logo_url.data else 'none' }}">
+                    <div id="logo-preview-placeholder" style="display: {{ 'none' if form.general.app_logo_url.data else 'flex' }}; height: 100%; align-items: center; justify-content: center; color: var(--light-text);">
+                        No logo
+                    </div>
+                </div>
+                
+                {% if form.general.app_logo_url.errors %}
+                    <div class="error-message">
+                        {% for error in form.general.app_logo_url.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                {{ form.general.app_favicon_url.label }}
+                {{ form.general.app_favicon_url(class="form-control", placeholder="https://example.com/favicon.ico") }}
+                <small style="color: var(--light-text); display: block; margin-top: 5px;">Leave blank to use the default favicon.</small>
+                
+                <div class="logo-preview" id="favicon-preview">
+                    <img id="favicon-preview-img" src="{{ form.general.app_favicon_url.data or '#' }}" alt="Favicon preview" style="display: {{ 'block' if form.general.app_favicon_url.data else 'none' }}">
+                    <div id="favicon-preview-placeholder" style="display: {{ 'none' if form.general.app_favicon_url.data else 'flex' }}; height: 100%; align-items: center; justify-content: center; color: var(--light-text);">
+                        No favicon
+                    </div>
+                </div>
+                
+                {% if form.general.app_favicon_url.errors %}
+                    <div class="error-message">
+                        {% for error in form.general.app_favicon_url.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                {{ form.general.form_image_url.label }}
+                {{ form.general.form_image_url(class="form-control", placeholder="https://example.com/image.png") }}
+                <small style="color: var(--light-text); display: block; margin-top: 5px;">Leave blank to use the default image.</small>
+                
+                <div class="logo-preview" id="image-preview">
+                    <img id="image-preview-img" src="{{ form.general.form_image_url.data or '#' }}" alt="Image preview" style="display: {{ 'block' if form.general.form_image_url.data else 'none' }}">
+                    <div id="image-preview-placeholder" style="display: {{ 'none' if form.general.form_image_url.data else 'flex' }}; height: 100%; align-items: center; justify-content: center; color: var(--light-text);">
+                        No image
+                    </div>
+                </div>
+                
+                {% if form.general.form_image_url.errors %}
+                    <div class="error-message">
+                        {% for error in form.general.form_image_url.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="theme-container">
+            <!-- Light Theme -->
+            <div class="theme-card">
+                <div class="theme-title">
+                    <i class="fas fa-sun"></i>
+                    <h3>Light Theme</h3>
+                </div>
+
+                <div class="theme-preview" id="light-preview">
+                    <div class="preview-elements">
+                        <span class="preview-btn" id="light-primary-btn">Primary</span>
+                        <span class="preview-btn" id="light-secondary-btn">Secondary</span>
+                        <span style="font-size: 14px;">Text</span>
+                    </div>
+                    <div class="preview-color-palette" id="light-palette"></div>
+                </div>
+
+                <div class="color-groups">
+                    {% for field in form.light_theme %}
+                        {% if field.type != 'CSRFTokenField' and field.name != 'submit' %}
+                        <div class="color-field">
+                            {{ field.label }}
+                            <div class="color-input-group">
+                                <input type="color" class="color-picker"
+                                       data-target="{{ field.id }}"
+                                       data-theme="light"
+                                       data-color="{{ field.name }}"
+                                       value="{{ field.data }}"
+                                       onchange="updateColorText(this)">
+                                {{ field(class="color-text", oninput="updateColorPicker(this)", data_theme="light", data_color=field.name) }}
+                            </div>
+                            {% if field.errors %}
+                            <div class="error-message">
+                                {% for error in field.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Dark Theme -->
+            <div class="theme-card">
+                <div class="theme-title">
+                    <i class="fas fa-moon"></i>
+                    <h3>Dark Theme</h3>
+                </div>
+
+                <div class="theme-preview" id="dark-preview">
+                    <div class="preview-elements">
+                        <span class="preview-btn" id="dark-primary-btn">Primary</span>
+                        <span class="preview-btn" id="dark-secondary-btn">Secondary</span>
+                        <span style="font-size: 14px;">Text</span>
+                    </div>
+                    <div class="preview-color-palette" id="dark-palette"></div>
+                </div>
+
+                <div class="color-groups">
+                    {% for field in form.dark_theme %}
+                        {% if field.type != 'CSRFTokenField' and field.name != 'submit' %}
+                        <div class="color-field">
+                            {{ field.label }}
+                            <div class="color-input-group">
+                                <input type="color" class="color-picker"
+                                       data-target="{{ field.id }}"
+                                       data-theme="dark"
+                                       data-color="{{ field.name }}"
+                                       value="{{ field.data }}"
+                                       onchange="updateColorText(this)">
+                                {{ field(class="color-text", oninput="updateColorPicker(this)", data_theme="dark", data_color=field.name) }}
+                            </div>
+                            {% if field.errors %}
+                            <div class="error-message">
+                                {% for error in field.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <a href="{{ url_for('settings.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Settings
+            </a>
+            <button type="submit" name="reset" class="btn btn-danger" value="True" onclick="return confirm('Reset all settings to defaults?');">
+                <i class="fas fa-undo"></i> Reset to Defaults
+            </button>
+            <button type="submit" name="submit" class="btn btn-primary" value="True">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+        </div>
+    </form>
+
+    <!-- Color tooltip element -->
+    <div class="color-tooltip" id="color-tooltip"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Color tooltip logic
+    const tooltip = document.getElementById('color-tooltip');
+
+    function showTooltip(event, text) {
+        tooltip.innerText = text;
+        tooltip.style.left = Math.min(event.pageX + 10, window.innerWidth - tooltip.offsetWidth - 10) + 'px';
+        tooltip.style.top = (event.pageY + 10) + 'px';
+        tooltip.style.opacity = 1;
+    }
+
+    function hideTooltip() {
+        tooltip.style.opacity = 0;
+    }
+
+    // Update color text field when color picker changes
+    function updateColorText(colorPicker) {
+        const targetInput = document.getElementById(colorPicker.dataset.target);
+        targetInput.value = colorPicker.value.toUpperCase();
+        updatePreviews();
+    }
+
+    // Update color picker when text field changes
+    function updateColorPicker(textInput) {
+        const colorPickers = document.querySelectorAll('.color-picker');
+        colorPickers.forEach(picker => {
+            if (picker.dataset.target === textInput.id) {
+                try {
+                    picker.value = textInput.value;
+                    updatePreviews();
+                } catch (e) {
+                    console.error('Invalid color value:', textInput.value);
+                }
+            }
+        });
+    }
+
+    // Generate color palettes for both themes
+    function generateColorPalettes() {
+        const lightPalette = document.getElementById('light-palette');
+        const darkPalette = document.getElementById('dark-palette');
+
+        lightPalette.innerHTML = '';
+        darkPalette.innerHTML = '';
+
+        const lightColors = {};
+        document.querySelectorAll('[data-theme="light"]').forEach(input => {
+            if (input.dataset.color) lightColors[input.dataset.color] = input.value;
+        });
+
+        const darkColors = {};
+        document.querySelectorAll('[data-theme="dark"]').forEach(input => {
+            if (input.dataset.color) darkColors[input.dataset.color] = input.value;
+        });
+
+        for (const [name, color] of Object.entries(lightColors)) {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.dataset.color = name;
+            swatch.dataset.value = color;
+            swatch.addEventListener('mouseover', (e) => showTooltip(e, `${name}: ${color}`));
+            swatch.addEventListener('mouseout', hideTooltip);
+            swatch.addEventListener('click', () => {
+                navigator.clipboard.writeText(color)
+                    .then(() => alert(`Copied ${name}: ${color}`))
+                    .catch(err => console.error('Failed to copy color:', err));
+            });
+            lightPalette.appendChild(swatch);
+        }
+
+        for (const [name, color] of Object.entries(darkColors)) {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.dataset.color = name;
+            swatch.dataset.value = color;
+            swatch.addEventListener('mouseover', (e) => showTooltip(e, `${name}: ${color}`));
+            swatch.addEventListener('mouseout', hideTooltip);
+            swatch.addEventListener('click', () => {
+                navigator.clipboard.writeText(color)
+                    .then(() => alert(`Copied ${name}: ${color}`))
+                    .catch(err => console.error('Failed to copy color:', err));
+            });
+            darkPalette.appendChild(swatch);
+        }
+    }
+
+    // Update the preview sections
+    function updatePreviews() {
+        const lightPreview = document.getElementById('light-preview');
+        lightPreview.style.backgroundColor = document.getElementById('light_theme-background_color').value;
+        lightPreview.style.color = document.getElementById('light_theme-text_color').value;
+        lightPreview.style.borderColor = document.getElementById('light_theme-border_color').value;
+        document.getElementById('light-primary-btn').style.backgroundColor = document.getElementById('light_theme-primary_color').value;
+        document.getElementById('light-secondary-btn').style.backgroundColor = document.getElementById('light_theme-secondary_color').value;
+
+        const darkPreview = document.getElementById('dark-preview');
+        darkPreview.style.backgroundColor = document.getElementById('dark_theme-background_color').value;
+        darkPreview.style.color = document.getElementById('dark_theme-text_color').value;
+        darkPreview.style.borderColor = document.getElementById('dark_theme-border_color').value;
+        document.getElementById('dark-primary-btn').style.backgroundColor = document.getElementById('dark_theme-primary_color').value;
+        document.getElementById('dark-secondary-btn').style.backgroundColor = document.getElementById('dark_theme-secondary_color').value;
+
+        generateColorPalettes();
+    }
+
+    // Preview logo and favicon when URLs change
+    function updateLogoPreview() {
+        const logoUrl = document.getElementById('general-app_logo_url').value;
+        const logoImg = document.getElementById('logo-preview-img');
+        const logoPlaceholder = document.getElementById('logo-preview-placeholder');
+        
+        if (logoUrl && logoUrl.trim() !== '') {
+            logoImg.src = logoUrl;
+            logoImg.style.display = 'block';
+            logoPlaceholder.style.display = 'none';
+            
+            // Handle failed image load
+            logoImg.onerror = function() {
+                logoImg.style.display = 'none';
+                logoPlaceholder.style.display = 'flex';
+                logoPlaceholder.textContent = 'Invalid image URL';
+            };
+            
+            logoImg.onload = function() {
+                logoImg.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
+            };
+        } else {
+            logoImg.style.display = 'none';
+            logoPlaceholder.style.display = 'flex';
+            logoPlaceholder.textContent = 'No logo';
+        }
+    }
+    
+    function updateFaviconPreview() {
+        const faviconUrl = document.getElementById('general-app_favicon_url').value;
+        const faviconImg = document.getElementById('favicon-preview-img');
+        const faviconPlaceholder = document.getElementById('favicon-preview-placeholder');
+        
+        if (faviconUrl && faviconUrl.trim() !== '') {
+            faviconImg.src = faviconUrl;
+            faviconImg.style.display = 'block';
+            faviconPlaceholder.style.display = 'none';
+            
+            // Handle failed image load
+            faviconImg.onerror = function() {
+                faviconImg.style.display = 'none';
+                faviconPlaceholder.style.display = 'flex';
+                faviconPlaceholder.textContent = 'Invalid image URL';
+            };
+            
+            faviconImg.onload = function() {
+                faviconImg.style.display = 'block';
+                faviconPlaceholder.style.display = 'none';
+            };
+        } else {
+            faviconImg.style.display = 'none';
+            faviconPlaceholder.style.display = 'flex';
+            faviconPlaceholder.textContent = 'No favicon';
+        }
+    }
+
+    // Initialize previews when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.color-text').forEach(input => {
+            const id = input.id;
+            if (id.startsWith('light_theme-')) {
+                input.dataset.theme = 'light';
+                input.dataset.color = id.replace('light_theme-', '');
+            } else if (id.startsWith('dark_theme-')) {
+                input.dataset.theme = 'dark';
+                input.dataset.color = id.replace('dark_theme-', '');
+            }
+        });
+
+        updatePreviews();
+
+        document.getElementById('light-primary-btn').addEventListener('click', () => {
+            document.querySelector('[data-theme="light"][data-color="primary_color"]').previousElementSibling.click();
+        });
+
+        document.getElementById('light-secondary-btn').addEventListener('click', () => {
+            document.querySelector('[data-theme="light"][data-color="secondary_color"]').previousElementSibling.click();
+        });
+
+        document.getElementById('dark-primary-btn').addEventListener('click', () => {
+            document.querySelector('[data-theme="dark"][data-color="primary_color"]').previousElementSibling.click();
+        });
+
+        document.getElementById('dark-secondary-btn').addEventListener('click', () => {
+            document.querySelector('[data-theme="dark"][data-color="secondary_color"]').previousElementSibling.click();
+        });
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', () => {
+            localStorage.setItem('theme_updated', Date.now().toString());
+            localStorage.setItem('settings_force_refresh', 'true');
+        });
+
+        // Add listeners for logo and favicon URL changes
+        document.getElementById('general-app_logo_url').addEventListener('input', updateLogoPreview);
+        document.getElementById('general-app_favicon_url').addEventListener('input', updateFaviconPreview);
+        
+        // Initialize logo previews
+        updateLogoPreview();
+        updateFaviconPreview();
+    });
+</script>
+{% endblock %}

@@ -1,9 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 from app.extensions import db
 from datetime import datetime
+from functools import wraps
+from flask import abort, flash, redirect, url_for
 
 
 # Association table for many-to-many relationship between users and roles
@@ -27,8 +29,8 @@ class UserSession(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     device = db.Column(db.String(200), nullable=False)
     ip_address = db.Column(db.String(100), nullable=False)
-    login_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    last_active = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    login_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    last_active = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     user = db.relationship('User', back_populates='sessions')
 
@@ -118,11 +120,33 @@ class User(db.Model, UserMixin):
 
 User.sessions = db.relationship('UserSession', order_by=UserSession.login_time, back_populates='user')
 
-    # Security recommendations:
-    # 1. Ensure passwords are hashed using a strong algorithm (e.g., bcrypt).
-    # 2. Enforce strong password policies (e.g., minimum length, complexity).
-    # 3. Implement account lockout mechanisms after multiple failed login attempts.
-    # 4. Use HTTPS to protect data in transit.
-    # 5. Regularly review and update security practices.
-    # 6. Implement logging and monitoring for suspicious activities.
-    # 7. Educate users about phishing and social engineering attacks.
+# Add the decorator function for role-based access control
+def requires_roles(*roles):
+    """
+    Decorator for role-based access control
+    Usage: @requires_roles('admin', 'system_admin')
+    """
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                flash('Please log in to access this page', 'error')
+                return redirect(url_for('auth.login'))
+                
+            # Check if the user has any of the required roles
+            user_roles = [role.name for role in current_user.roles]
+            if not any(role in user_roles for role in roles):
+                abort(403)  # Forbidden
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+# Security recommendations:
+# 1. Ensure passwords are hashed using a strong algorithm (e.g., bcrypt).
+# 2. Enforce strong password policies (e.g., minimum length, complexity).
+# 3. Implement account lockout mechanisms after multiple failed login attempts.
+# 4. Use HTTPS to protect data in transit.
+# 5. Regularly review and update security practices.
+# 6. Implement logging and monitoring for suspicious activities.
+# 7. Educate users about phishing and social engineering attacks.

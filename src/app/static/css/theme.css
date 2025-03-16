@@ -1,0 +1,55 @@
+:root, [data-theme-preload="dark"] {
+    --primary-color: #6366F1;
+    --primary-hover: #4F46E5;
+    --secondary-color: #10B981;
+    --text-color: #111827;
+    --light-text: #6B7280;
+    --border-color: #E5E7EB;
+    --background-color: #F9FAFB;
+    --light-gray: #F3F4F6;
+    --warning-color: #F59E0B;
+    --error-color: #EF4444;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+[data-theme="dark"], [data-theme-preload="dark"] {
+    --primary-color: #818CF8;
+    --primary-hover: #A5B4FC;
+    --secondary-color: #34D399;
+    --text-color: #D1D5DB;
+    --light-text: #9CA3AF;
+    --border-color: #4B5563;
+    --background-color: #111827;
+    --light-gray: #1F2A44;
+    --warning-color: #FBBF24;
+    --error-color: #F87171;
+}
+
+/* Variable compatibility for both kebab-case and snake_case */
+:root {
+    --primary_color: var(--primary-color);
+    --primary_hover: var(--primary-hover);
+    --secondary_color: var(--secondary-color);
+    --text_color: var(--text-color);
+    --light_text: var(--light-text);
+    --border_color: var(--border-color);
+    --background_color: var(--background-color);
+    --light_gray: var(--light-gray);
+    --warning_color: var(--warning-color);
+    --error_color: var(--error-color);
+}
+
+[data-theme="dark"], [data-theme-preload="dark"] {
+    --primary_color: var(--primary-color);
+    --primary_hover: var(--primary-hover);
+    --secondary_color: var(--secondary-color);
+    --text_color: var(--text-color);
+    --light_text: var(--light-text);
+    --border_color: var(--border-color);
+    --background_color: var(--background-color);
+    --light_gray: var(--light-gray);
+    --warning_color: var(--warning-color);
+    --error_color: var(--error-color);
+}

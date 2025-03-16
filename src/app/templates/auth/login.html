@@ -1,31 +1,119 @@
 {% extends 'auth/base.html' %}
 
-
 {% block title %}Log In{% endblock %}
 
 {% block form_content %}
-<div class="form-header">
-    <h2 class="form-title">Log In</h2>
+<div class="auth-form">
+    <div class="auth-form-header">
+        <h2 class="auth-form-title">Welcome Back</h2>
+        <p class="auth-form-subtitle">Sign in to your account to continue</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control", placeholder="Enter your username or email", autocomplete="username") }}
+            {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <div class="d-flex justify-content-between">
+                {{ form.password.label(class="form-label") }}
+                <a href="{{ url_for('auth.forgot_password') if 'forgot_password' in url_for_security else '#' }}" class="form-label-link">Forgot password?</a>
+            </div>
+            {{ form.password(class="form-control", placeholder="Enter your password", autocomplete="current-password") }}
+            {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-check">
+            {{ form.remember_me(class="form-check-input") }}
+            {{ form.remember_me.label(class="form-check-label") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary btn-block") }}
+        </div>
+    </form>
+    
+    <div class="auth-form-footer">
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+    </div>
 </div>
-<form method="POST" action="{{ url_for('auth.login') }}">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-input") }}
-    </div>
-    <div class="form-group">
-        {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-input") }}
-    </div>
-    <div class="form-checkbox-container">
-        {{ form.remember_me(class="form-checkbox") }}
-        {{ form.remember_me.label(class="form-checkbox-label") }}
-    </div>
-    <div class="form-group">
-        {{ form.submit(class="form-button") }}
-    </div>
-</form>
-<div class="form-footer">
-    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-form {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .form-label-link {
+        font-size: 0.85rem;
+        color: var(--primary-color);
+    }
+    
+    .d-flex {
+        display: flex;
+    }
+    
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    @media (max-width: 767px) {
+        /* Mobile-specific styles for login */
+        .form-check {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label-link {
+            padding: 4px 8px;
+            margin: -4px -8px;
+            border-radius: 4px;
+        }
+        
+        .form-label-link:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+    }
+    
+    @media (max-width: 360px) {
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+        
+        .form-label-link {
+            margin-left: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add auth-page class to body for mobile optimization
+    document.body.classList.add('auth-page');
+    
+    // Form improvement for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus first field on load - but only after animations complete
+        setTimeout(() => {
+            const firstInput = document.querySelector('.form-control');
+            if (firstInput) firstInput.focus();
+        }, 1000);
+    });
+</script>
 {% endblock %}

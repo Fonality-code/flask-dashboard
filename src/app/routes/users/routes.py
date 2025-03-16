@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, flash, redirect, url_for, abort, current_app
 from flask_login import login_required, current_user
-from app.models.user import User, Role
+from app.models.user import User, Role, requires_roles
 from app.extensions import db
 from app.crud.user import get_user_by_id, get_user_by_email
 import uuid
@@ -63,13 +63,15 @@ def get_invitation_by_token(token):
 
 # Routes
 @users_bp.route('/')
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def index():
     users = User.query.all()
     return render_template('users/index.html', users=users)
 
 @users_bp.route('/add', methods=['GET', 'POST'])
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def add():
     roles = Role.query.all()
     
@@ -115,7 +117,8 @@ def add():
     return render_template('users/add.html', roles=roles)
 
 @users_bp.route('/invitations')
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def invitations():
     active_invitations = Invitation.query.filter_by(used=False).filter(Invitation.expires_at > datetime.now()).all()
     return render_template('users/invitations.html', invitations=active_invitations)
@@ -172,7 +175,8 @@ def register(token):
 
 # Delete user
 @users_bp.route('/delete/<int:user_id>', methods=['POST'])
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def delete_user(user_id):
     user = get_user_by_id(user_id)
     
@@ -196,7 +200,8 @@ def delete_user(user_id):
 
 # Edit user roles
 @users_bp.route('/edit/<int:user_id>', methods=['GET', 'POST'])
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def edit_user(user_id):
     user = get_user_by_id(user_id)
     roles = Role.query.all()
@@ -218,7 +223,8 @@ def edit_user(user_id):
     return render_template('users/edit.html', user=user, roles=roles)
 
 @users_bp.route('/manage_roles/<int:user_id>', methods=['GET', 'POST'])
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def manage_role(user_id):
     user = get_user_by_id(user_id)
     roles = Role.query.all()
@@ -240,13 +246,15 @@ def manage_role(user_id):
     return render_template('users/manage_roles.html', user=user, roles=roles)
 
 @users_bp.route('/roles')
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def view_roles():
     roles = Role.query.all()
     return render_template('users/view_roles.html', roles=roles)
 
 @users_bp.route('/roles/manage', methods=['GET', 'POST'])
-@admin_required
+@login_required
+@requires_roles('admin', 'system_admin')
 def manage_roles():
     if request.method == 'POST':
         role_name = request.form.get('role_name')
