@@ -1,0 +1,114 @@
+{# base_form.html #}
+{% macro render_form(action="", method="post", title="FORM") %}
+<div class="form-container">
+  <h1 class="form-title">{{ title }}</h1>
+  <form action="{{ action }}" method="{{ method }}" class="form">
+    {{ caller() }}
+  </form>
+</div>
+{% endmacro %}
+
+{# form_elements.html #}
+{% macro render_input(name, type="text", label="", icon="", value="", placeholder="", required=False, state="normal", message="") %}
+  <div class="input-wrapper {% if state %}state-{{ state }}{% endif %}">
+    {% if icon %}
+    <div class="input-icon">
+      <i class="icon-{{ icon }}"></i>
+    </div>
+    {% endif %}
+    <div class="input-content">
+      {% if state == "focus" or state == "warning" or state == "error" or state == "correct" %}
+        <div class="input-label">{{ label or name|capitalize }}</div>
+      {% endif %}
+      <input 
+        type="{{ type }}" 
+        name="{{ name }}" 
+        id="{{ name }}" 
+        value="{{ value }}"
+        placeholder="{{ placeholder or label or name|capitalize }}"
+        {% if required %}required{% endif %}
+        class="form-input"
+      >
+    </div>
+    {% if state == "warning" %}
+      <div class="input-status warning">!</div>
+    {% elif state == "error" %}
+      <div class="input-status error">×</div>
+    {% elif state == "correct" %}
+      <div class="input-status correct">✓</div>
+    {% endif %}
+  </div>
+  {% if message and (state == "warning" or state == "error" or state == "correct") %}
+    <div class="input-message state-{{ state }}">{{ message }}</div>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_password(name="password", label="Password", value="", required=False, state="normal", message="") %}
+  {{ render_input(name=name, type="password", label=label, icon="key", value=value, required=required, state=state, message=message) }}
+  {% if state == "warning" or state == "error" or state == "correct" %}
+    <div class="password-strength">
+      <div class="strength-bar">
+        <div class="strength-segment {% if state == 'warning' or state == 'error' or state == 'correct' %}segment-red{% endif %}"></div>
+        <div class="strength-segment {% if state == 'warning' or state == 'correct' %}segment-yellow{% endif %}"></div>
+        <div class="strength-segment {% if state == 'correct' %}segment-green{% endif %}"></div>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_select(name, options, label="", selected="", icon="", required=False) %}
+  <div class="input-wrapper">
+    {% if icon %}
+    <div class="input-icon">
+      <i class="icon-{{ icon }}"></i>
+    </div>
+    {% endif %}
+    <div class="input-content">
+      <select name="{{ name }}" id="{{ name }}" class="form-select" {% if required %}required{% endif %}>
+        <option value="" disabled {% if not selected %}selected{% endif %}>{{ label or name|capitalize }}</option>
+        {% for option in options %}
+          {% if option is mapping %}
+            <option value="{{ option.value }}" {% if option.value == selected %}selected{% endif %}>{{ option.label }}</option>
+          {% else %}
+            <option value="{{ option }}" {% if option == selected %}selected{% endif %}>{{ option }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <div class="select-arrow">▼</div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro render_choice_group(label="", options=[], type="radio", name="", required=False) %}
+  <div class="choice-group">
+    <div class="choice-label">{{ label }}</div>
+    <div class="choice-options">
+      {% for option in options %}
+        <div class="choice-option">
+          <label class="choice-label-wrapper">
+            <input 
+              type="{{ type }}" 
+              name="{{ name }}" 
+              value="{{ option.value if option is mapping else option }}"
+              {% if required %}required{% endif %}
+              class="form-{{ type }}"
+            >
+            <span class="choice-text">{{ option.label if option is mapping else option }}</span>
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro render_checkbox_group(label="", options=[], name="", required=False) %}
+  {{ render_choice_group(label=label, options=options, type="checkbox", name=name, required=required) }}
+{% endmacro %}
+
+{% macro render_radio_group(label="", options=[], name="", required=False) %}
+  {{ render_choice_group(label=label, options=options, type="radio", name=name, required=required) }}
+{% endmacro %}
+
+{% macro render_submit(text="SEND") %}
+  <button type="submit" class="submit-button">{{ text }}</button>
+{% endmacro %}

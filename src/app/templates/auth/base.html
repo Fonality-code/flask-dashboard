@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms/base.css') }}">
+   
+   
+    {% block extra_css %}{% endblock %}
+</head>
+<style>
+    
+:root {
+    --primary-color: #FF3B75;
+    --primary-hover: #E82564;
+    --text-color: #333333;
+    --light-text: #888888;
+    --border-color: #E5E7EB;
+    --success-color: #4CAF50;
+    --background-color: #FFF8F9;
+    --light-gray: #F3F4F6;
+    --placeholder-color: #9CA3AF;
+    --warning-color: #F59E0B;
+    --error-color: #EF4444;
+   
+
+}
+</style>
+<body>
+    <div class="form-container">
+        <div class="form-image-section">
+            {% if image_url %}
+                <img src="{{ image_url }}" alt="Form Image" class="form-image">
+            {% else %}
+                <img src="{{ url_for('static', filename='asbstract.webp') }}" alt="Default Form Image" class="form-image">
+            {% endif %}
+            <div class="image-overlay"></div>
+        </div>
+        
+        <div class="form-content-section">
+            {% block form_content %}
+            <!-- Form content will be rendered here when template is extended -->
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
