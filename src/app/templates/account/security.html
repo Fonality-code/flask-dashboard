@@ -586,6 +586,27 @@
             {% endif %}
         </div>
     </div>
+
+    <div class="security-card">
+        <h2 class="card-title">
+            <i class="fas fa-user-times"></i> Delete Account
+        </h2>
+        <p class="card-description">
+            Permanently delete your account. This action cannot be undone.
+        </p>
+        <div class="card-actions">
+            {% if current_user.id != 1 %}
+                <form method="POST" action="{{ url_for('account.delete_account') }}">
+                    {{ form.hidden_tag() if form else '' }}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                        <i class="fas fa-user-times"></i> Delete Account
+                    </button>
+                </form>
+            {% else %}
+                <p>You cannot delete the first user account.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script>

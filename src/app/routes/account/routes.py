@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.crud.user import update_user, get_user_sessions, remove_user_session
+from app.crud.user import update_user, get_user_sessions, remove_user_session, delete_user  # Add this import
 from app.routes.account.forms import UpdateAccountForm, UpdateUserOptionsForm
 from app.routes.auth.forms import TwoFactorForm  # Corrected import
 from datetime import datetime
@@ -128,3 +128,15 @@ def remove_session(session_id):
     else:
         flash('Error revoking session.', 'error')
     return redirect(url_for('account.sessions'))
+
+@account.route('/delete_account', methods=['POST'])
+@login_required
+@session_required
+def delete_account():
+    if current_user.id != 1:
+        delete_user(current_user.id)
+        flash('Your account has been deleted.', 'success')
+        return redirect(url_for('auth.logout'))
+    else:
+        flash('The first user account cannot be deleted.', 'error')
+    return redirect(url_for('account.security'))
