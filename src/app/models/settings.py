@@ -21,7 +21,7 @@ class Settings(db.Model):
             # Default UI settings
             default_settings = {
                 'general': {
-                    'app-name': 'Dashboard',
+                    'app-name': 'Afri Academy',  # Default app name
                     'app-logo-url': '',  # Empty string for default logo
                     'app-favicon-url': '',  # Empty string for default favicon
                     'form-image-url': '',  # Empty string for default form image
